@@ -25,11 +25,13 @@ const hatY = document.getElementById("hatY");
 const hatSize = document.getElementById("hatSize");
 const toggleSnow = document.getElementById("toggleSnow");
 const snowAmount = document.getElementById("snowAmount");
+const toggleLights = document.getElementById("toggleLights");
+const toggleAntlers = document.getElementById("toggleAntlers");
+const toggleScarf = document.getElementById("toggleScarf");
 const toggleFrame = document.getElementById("toggleFrame");
 
 let currentImage = null;
 let currentName = "pfp";
-let tainted = false;
 
 function setStatus(message, isError = true) {
     statusEl.textContent = message;
@@ -95,7 +97,6 @@ fileInput.addEventListener("change", () => {
         const img = new Image();
         img.onload = () => {
             currentImage = img;
-            tainted = false; 
             currentName = file.name.replace(/\.[^.]+$/, "") || "pfp";
             openEditor("");
         };
@@ -107,25 +108,16 @@ fileInput.addEventListener("change", () => {
 });
 
 function loadImageFromUrl(url) {
+    const proxied = `https://images.weserv.nl/?url=${encodeURIComponent(url.replace(/^https?:\/\//, ""))}`;
     return new Promise((resolve, reject) => {
-        const corsImg = new Image();
-        corsImg.crossOrigin = "anonymous";
-        corsImg.onload = () => {
-            currentImage = corsImg;
-            tainted = false;
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+            currentImage = img;
             resolve();
         };
-        corsImg.onerror = () => {
-            const plainImg = new Image();
-            plainImg.onload = () => {
-                currentImage = plainImg;
-                tainted = true;
-                resolve();
-            };
-            plainImg.onerror = () => reject(new Error("Failed to load profile image."));
-            plainImg.src = url;
-        };
-        corsImg.src = url;
+        img.onerror = () => reject(new Error("Failed to load profile image."));
+        img.src = proxied;
     });
 }
 
@@ -134,14 +126,8 @@ function openEditor(label) {
     displayNameEl.classList.toggle("hidden", !label);
     editor.classList.remove("hidden");
     render();
-
-    if (tainted) {
-        downloadBtn.disabled = true;
-        setStatus("Loaded. Slack's CDN blocks downloads, so use a screenshot to save.", false);
-    } else {
-        downloadBtn.disabled = false;
-        setStatus("Loaded.", false);
-    }
+    downloadBtn.disabled = false;
+    setStatus("Loaded.", false);
 }
 
 function render() {
@@ -157,6 +143,9 @@ function render() {
 
     if (toggleFrame.checked) drawFrame(size);
     if (toggleSnow.checked) drawSnow(size, Number(snowAmount.value));
+    if (toggleScarf.checked) drawScarf(size);
+    if (toggleAntlers.checked) drawAntlers(size);
+    if (toggleLights.checked) drawLights(size);
     if (toggleHat.checked) {
         drawSantaHat(size, Number(hatX.value), Number(hatY.value), Number(hatSize.value));
     }
@@ -205,6 +194,93 @@ function drawSnow(size, count) {
     ctx.restore();
 }
 
+function drawScarf(size) {
+    ctx.save();
+    ctx.fillStyle = "#1f6f3d";
+    ctx.beginPath();
+    ctx.moveTo(0, size * 0.74);
+    ctx.quadraticCurveTo(size * 0.5, size * 0.66, size, size * 0.74);
+    ctx.lineTo(size, size * 0.9);
+    ctx.quadraticCurveTo(size * 0.5, size * 0.82, 0, size * 0.9);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#196134";
+    ctx.fillRect(size * 0.6, size * 0.8, size * 0.12, size * 0.18);
+
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.45)";
+    ctx.lineWidth = size * 0.012;
+    for (let x = 0; x < size; x += size * 0.06) {
+        ctx.beginPath();
+        ctx.moveTo(x, size * 0.72);
+        ctx.lineTo(x + size * 0.02, size * 0.9);
+        ctx.stroke();
+    }
+    ctx.restore();
+}
+
+function drawAntlers(size) {
+    ctx.save();
+    ctx.strokeStyle = "#6b4423";
+    ctx.lineCap = "round";
+    ctx.lineWidth = size * 0.03;
+    const top = size * 0.16;
+
+    for (const dir of [-1, 1]) {
+        const baseX = size * 0.5 + dir * size * 0.18;
+        ctx.beginPath();
+        ctx.moveTo(baseX, top + size * 0.12);
+        ctx.quadraticCurveTo(baseX + dir * size * 0.08, top, baseX + dir * size * 0.12, top - size * 0.1);
+        ctx.stroke();
+
+        ctx.lineWidth = size * 0.02;
+        ctx.beginPath();
+        ctx.moveTo(baseX + dir * size * 0.06, top + size * 0.02);
+        ctx.lineTo(baseX + dir * size * 0.14, top - size * 0.02);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(baseX + dir * size * 0.1, top - size * 0.04);
+        ctx.lineTo(baseX + dir * size * 0.18, top - size * 0.06);
+        ctx.stroke();
+        ctx.lineWidth = size * 0.03;
+    }
+    ctx.restore();
+}
+
+function drawLights(size) {
+    ctx.save();
+    const colors = ["#e74c3c", "#f1c40f", "#2ecc71", "#3498db"];
+    const wireY = size * 0.06;
+    const sag = size * 0.05;
+
+    ctx.strokeStyle = "#2c3e50";
+    ctx.lineWidth = size * 0.008;
+    ctx.beginPath();
+    ctx.moveTo(0, wireY);
+    ctx.quadraticCurveTo(size * 0.5, wireY + sag, size, wireY);
+    ctx.stroke();
+
+    const bulbs = 9;
+    for (let i = 0; i <= bulbs; i++) {
+        const t = i / bulbs;
+        const x = t * size;
+        const y = (1 - t) * (1 - t) * wireY + 2 * (1 - t) * t * (wireY + sag) + t * t * wireY;
+        ctx.strokeStyle = "#2c3e50";
+        ctx.lineWidth = size * 0.004;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x, y + size * 0.025);
+        ctx.stroke();
+
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.beginPath();
+        ctx.arc(x, y + size * 0.04, size * 0.018, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    ctx.restore();
+}
+
 function drawFrame(size) {
     const w = size * 0.04;
     ctx.save();
@@ -224,8 +300,11 @@ function pseudoRandom(seed) {
     return v - Math.floor(v);
 }
 
-
-[toggleHat, hatX, hatY, hatSize, toggleSnow, snowAmount, toggleFrame].forEach((el) => {
+[
+    toggleHat, hatX, hatY, hatSize,
+    toggleSnow, snowAmount,
+    toggleLights, toggleAntlers, toggleScarf, toggleFrame,
+].forEach((el) => {
     el.addEventListener("input", render);
 });
 
@@ -236,6 +315,9 @@ autoBtn.addEventListener("click", () => {
     hatSize.value = 100;
     toggleSnow.checked = true;
     snowAmount.value = 60;
+    toggleLights.checked = true;
+    toggleScarf.checked = true;
+    toggleAntlers.checked = false;
     toggleFrame.checked = false;
     render();
 });

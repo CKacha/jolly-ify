@@ -5,4 +5,6 @@ By using the [Cachet API](https://cachet.dunkirk.sh/swagger#description/introduc
 
 Alternatively, you can just upload an image directly and then get back a jolly image instead!
 
-Alternatively alternativly, you can upload an image and then manually make it jolly with the jolly tools™ 
+Alternatively alternativly, you can upload an image and then manually make it jolly with the jolly tools™, there are quite a few indeed :p
+
+Happy jolly-mas!
