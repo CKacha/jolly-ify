@@ -8,9 +8,82 @@
 </head>
 <body>
     <main>
-        <h1>Hello, World!</h1>
-        <p>Welcome to your new page.</p>
-        <button id="actionBtn">Click me</button>
+        <header>
+            <h1>Jolly-ify</h1>
+            <p>Make your profile picture more jolly. Look one up by Slack ID, or upload your own.</p>
+        </header>
+
+        <section class="sources">
+            <div class="tabs">
+                <button type="button" class="tab active" data-tab="slack">Slack ID</button>
+                <button type="button" class="tab" data-tab="upload">Upload</button>
+            </div>
+
+            <div class="tab-panel" id="panel-slack">
+                <form id="lookupForm">
+                    <input
+                        id="userId"
+                        type="text"
+                        placeholder="Slack user ID (e.g. U062UG485EE)"
+                        autocomplete="off"
+                        required
+                    >
+                    <button type="submit" id="lookupBtn">Search</button>
+                </form>
+                <p class="hint">Fetched through the Cachet API!</p>
+            </div>
+
+            <div class="tab-panel hidden" id="panel-upload">
+                <input id="fileInput" type="file" accept="image/*">
+                <p class="hint">Your image will stay in the browser & nothing is uploaded :p</p>
+            </div>
+
+            <p id="status" class="status" role="status"></p>
+        </section>
+
+        <section id="editor" class="editor hidden">
+            <div class="canvas-wrap">
+                <canvas id="pfpCanvas" width="400" height="400"></canvas>
+            </div>
+
+            <p id="displayName" class="display-name"></p>
+
+            <div class="tools">
+                <button type="button" id="autoBtn">Auto jolly-ify</button>
+
+                <fieldset>
+                    <legend>
+                        <label><input type="checkbox" id="toggleHat" checked> Santa hat</label>
+                    </legend>
+                    <label class="slider">Position
+                        <input type="range" id="hatX" min="0" max="100" value="50">
+                    </label>
+                    <label class="slider">Height
+                        <input type="range" id="hatY" min="0" max="100" value="20">
+                    </label>
+                    <label class="slider">Size
+                        <input type="range" id="hatSize" min="40" max="160" value="100">
+                    </label>
+                </fieldset>
+
+                <fieldset>
+                    <legend>
+                        <label><input type="checkbox" id="toggleSnow" checked> Snow</label>
+                    </legend>
+                    <label class="slider">Amount
+                        <input type="range" id="snowAmount" min="0" max="160" value="60">
+                    </label>
+                </fieldset>
+
+                <fieldset>
+                    <legend>
+                        <label><input type="checkbox" id="toggleFrame"> Festive border</label>
+                    </legend>
+                </fieldset>
+
+                <button type="button" id="downloadBtn">Download</button>
+            </div>
+        </section>
     </main>
     <script src="script.js"></script>
 </body>
